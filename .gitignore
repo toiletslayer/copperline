@@ -1,0 +1,18 @@
+# OS/editor junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependency folders, if a package manager is introduced later
+node_modules/
+
+# Build output, if a build step is introduced later
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
