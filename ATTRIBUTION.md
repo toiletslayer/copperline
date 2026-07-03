@@ -1,6 +1,7 @@
 # Attribution
 
-Copperline is planned as an adaptation/remix inspired by the browser-based 3D Pipes project by 1j01:
+Copperline is an adaptation/remix inspired by the browser-based 3D Pipes
+project by 1j01:
 
 - Upstream repo: https://github.com/1j01/pipes
 
@@ -14,16 +15,30 @@ When importing/adapting upstream code:
 4. Keep this attribution file updated.
 5. Do not imply Copperline is the original 1j01 project.
 
-## Current status
+## Imported upstream base
 
-At this stage, this repo contains planning documentation only.
+Phase 1 imports the upstream static browser app from `1j01/pipes`.
 
-When upstream code is imported, update this file with:
+- Upstream repository: https://github.com/1j01/pipes
+- Imported commit: `86e8eb1418f937ef43f9acbd871085c5160714fc`
+- Commit author: Isaiah Odhner
+- Commit date: 2021-08-05
+- License: MIT
+- License file location: [LICENSE](LICENSE)
+- Original upstream README: [UPSTREAM_README.md](UPSTREAM_README.md)
 
-- upstream commit/reference used
-- license file location
-- any changed file notes
-- any substantial modifications
+Imported upstream app files include:
+
+- `index.html`
+- `screensaver.js`
+- `lib/`
+- `images/`
+- `package.json`
+- `package-lock.json`
+- upstream formatter/editor metadata
+
+Phase 1 keeps the original upstream app running before Copperline-specific
+visual or behavior changes are applied.
 
 ## Copperline-specific additions
 
