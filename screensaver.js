@@ -2,6 +2,23 @@ var gridBounds = new THREE.Box3(
   new THREE.Vector3(-10, -10, -10),
   new THREE.Vector3(10, 10, 10)
 );
+
+var COPPERLINE_THEME = {
+  copper: 0xb87333,
+  darkCopper: 0x5a2f16,
+  hotGlow: 0xff7a1a,
+  warmHighlight: 0xffb86b,
+  oxidizedGreen: 0x2f7f64,
+  background: 0x050403,
+};
+
+var copperlinePipeMaterial = new THREE.MeshPhongMaterial({
+  color: COPPERLINE_THEME.copper,
+  specular: COPPERLINE_THEME.warmHighlight,
+  emissive: COPPERLINE_THEME.darkCopper,
+  shininess: 95,
+});
+
 var nodes = {};
 function setAt(position, value) {
   nodes["(" + position.x + ", " + position.y + ", " + position.z + ")"] = value;
@@ -29,14 +46,7 @@ var Pipe = function(scene, options) {
       map: textures[options.texturePath],
     });
   } else {
-    var color = randomInteger(0, 0xffffff);
-    var emissive = new THREE.Color(color).multiplyScalar(0.3);
-    self.material = new THREE.MeshPhongMaterial({
-      specular: 0xa9fcff,
-      color: color,
-      emissive: emissive,
-      shininess: 100,
-    });
+    self.material = copperlinePipeMaterial;
   }
   var makeCylinderBetweenPoints = function(fromPoint, toPoint, material) {
     var deltaVector = new THREE.Vector3().subVectors(toPoint, fromPoint);
@@ -230,6 +240,7 @@ var pipes = [];
 var options = {
   multiple: true,
   texturePath: null,
+  noveltyTextureChance: 0,
   joints: jointTypeSelect.value,
   interval: [16, 24], // range of seconds between fade-outs... not necessarily anything like how the original works
 };
@@ -250,6 +261,7 @@ var renderer = new THREE.WebGLRenderer({
   antialias: true,
   canvas: canvasWebGL,
 });
+renderer.setClearColor(COPPERLINE_THEME.background, 1);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 // camera
@@ -267,14 +279,25 @@ controls.enabled = false;
 
 // scene
 var scene = new THREE.Scene();
+scene.background = new THREE.Color(COPPERLINE_THEME.background);
 
 // lighting
-var ambientLight = new THREE.AmbientLight(0x111111);
+var ambientLight = new THREE.AmbientLight(0x1c1008);
 scene.add(ambientLight);
 
-var directionalLightL = new THREE.DirectionalLight(0xffffff, 0.9);
+var directionalLightL = new THREE.DirectionalLight(
+  COPPERLINE_THEME.warmHighlight,
+  0.95
+);
 directionalLightL.position.set(-1.2, 1.5, 0.5);
 scene.add(directionalLightL);
+
+var directionalLightR = new THREE.DirectionalLight(
+  COPPERLINE_THEME.hotGlow,
+  0.35
+);
+directionalLightR.position.set(1.5, -0.8, 1);
+scene.add(directionalLightR);
 
 // dissolve transition effect
 
@@ -362,12 +385,12 @@ function animate() {
       jointType = jointsCycleArray[jointsCycleIndex++];
     }
     var pipeOptions = {
-      teapotChance: 1 / 200, // 1 / 1000 in the original
+      teapotChance: 0,
       ballJointChance:
         jointType === JOINTS_BALL ? 1 : jointType === JOINTS_MIXED ? 1 / 3 : 0,
       texturePath: options.texturePath,
     };
-    if (chance(1 / 20)) {
+    if (chance(options.noveltyTextureChance)) {
       pipeOptions.teapotChance = 1 / 20; // why not? :)
       pipeOptions.texturePath = "images/textures/candycane.png";
       // TODO: DRY

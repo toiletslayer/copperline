@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>3D Pipes Screensaver</title>
+    <title>Copperline</title>
     <link
       rel="icon"
       href="images/meta/icon-16x16.png"
@@ -34,12 +34,38 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
-        background: #000;
-        color: white;
+        background: #050403;
+        color: #ffd8b0;
         font-family: sans-serif;
       }
       #canvas-container {
         position: relative;
+      }
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+      }
+      body::before {
+        background: radial-gradient(
+          circle at center,
+          rgba(255, 122, 26, 0.03) 0,
+          rgba(5, 4, 3, 0.12) 55%,
+          rgba(0, 0, 0, 0.55) 100%
+        );
+      }
+      body::after {
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 184, 107, 0.08) 0,
+          rgba(255, 184, 107, 0.08) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+        opacity: 0.16;
       }
       canvas {
         position: absolute;
@@ -48,7 +74,9 @@
       }
       .controls {
         padding: 10px;
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(5, 4, 3, 0.62);
+        border-right: 1px solid rgba(255, 184, 107, 0.22);
+        border-bottom: 1px solid rgba(255, 184, 107, 0.22);
         text-shadow: 0 0 2px black;
         position: absolute;
         top: 0;
@@ -56,7 +84,15 @@
       }
       .controls,
       .fork-me {
-        z-index: 1;
+        z-index: 3;
+      }
+      .app-title {
+        color: #ffb86b;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0;
+        margin: 0 10px 6px;
+        text-transform: uppercase;
       }
       .controls th {
         text-align: left;
@@ -70,8 +106,8 @@
         margin: 10px;
       }
       button {
-        border: 1px solid gray;
-        background: rgba(128, 128, 128, 0.4);
+        border: 1px solid rgba(255, 184, 107, 0.42);
+        background: rgba(90, 47, 22, 0.55);
         color: inherit;
         display: flex;
         padding: 5px 10px;
@@ -96,15 +132,16 @@
     <meta name="viewport" content="width=device-width, user-scalable=no" />
   </head>
   <body>
-    <a href="https://github.com/1j01/pipes" class="ui-container"
+    <a href="https://github.com/toiletslayer/copperline" class="ui-container"
       ><img
         class="fork-me"
         style="position: absolute; top: 0; right: 0; border: 0;"
         src="https://camo.githubusercontent.com/52760788cde945287fbb584134c4cbc2bc36f904/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67"
-        alt="Fork me on GitHub"
+        alt="View Copperline on GitHub"
         data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
     /></a>
     <div class="controls ui-container">
+      <div class="app-title">Copperline</div>
       <button id="fullscreen-button">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 438.543 438.543">
           <path

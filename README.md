@@ -115,11 +115,29 @@ https://toiletslayer.github.io/copperline/
 
 ## Upstream base
 
-Phase 1 imports the original static browser app from
-[1j01/pipes](https://github.com/1j01/pipes) without applying the Copperline
-theme yet.
+Phase 1 imported the original static browser app from
+[1j01/pipes](https://github.com/1j01/pipes). Phase 2 applies Copperline's
+visual identity while preserving the same static app behavior.
 
 - Imported upstream commit: `86e8eb1418f937ef43f9acbd871085c5160714fc`
 - Upstream author: Isaiah Odhner
 - Upstream license: MIT, preserved in [LICENSE](LICENSE)
 - Original upstream README: [UPSTREAM_README.md](UPSTREAM_README.md)
+
+## Theme tuning
+
+The Copperline palette is defined near the top of `screensaver.js`:
+
+```js
+var COPPERLINE_THEME = {
+  copper: 0xb87333,
+  darkCopper: 0x5a2f16,
+  hotGlow: 0xff7a1a,
+  warmHighlight: 0xffb86b,
+  oxidizedGreen: 0x2f7f64,
+  background: 0x050403,
+};
+```
+
+Adjust those values to tune the copper pipe color, warm highlights, glow, and
+dark industrial background.
