@@ -12,11 +12,47 @@ var COPPERLINE_THEME = {
   background: 0x050403,
 };
 
+var COPPERLINE_SETTINGS = {
+  glowOpacity: 0.28,
+  innerGlowRadiusScale: 0.38,
+  relayNodeChance: 1 / 18,
+  coreNodeChance: 1 / 80,
+  oxidationChance: 1 / 36,
+};
+
 var copperlinePipeMaterial = new THREE.MeshPhongMaterial({
   color: COPPERLINE_THEME.copper,
   specular: COPPERLINE_THEME.warmHighlight,
   emissive: COPPERLINE_THEME.darkCopper,
   shininess: 95,
+});
+
+var copperlineCouplingMaterial = new THREE.MeshPhongMaterial({
+  color: COPPERLINE_THEME.darkCopper,
+  specular: COPPERLINE_THEME.warmHighlight,
+  emissive: 0x1a0902,
+  shininess: 120,
+});
+
+var copperlineRelayCoreMaterial = new THREE.MeshBasicMaterial({
+  color: COPPERLINE_THEME.hotGlow,
+  transparent: true,
+  opacity: 0.72,
+});
+
+var copperlineInnerGlowMaterial = new THREE.MeshBasicMaterial({
+  color: COPPERLINE_THEME.hotGlow,
+  transparent: true,
+  opacity: COPPERLINE_SETTINGS.glowOpacity,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+
+var copperlineOxidizedMaterial = new THREE.MeshPhongMaterial({
+  color: COPPERLINE_THEME.oxidizedGreen,
+  specular: COPPERLINE_THEME.warmHighlight,
+  emissive: 0x082419,
+  shininess: 55,
 });
 
 var nodes = {};
@@ -35,12 +71,14 @@ var Pipe = function(scene, options) {
   var self = this;
   var pipeRadius = 0.2;
   var ballJointRadius = pipeRadius * 1.5;
-  var teapotSize = ballJointRadius;
+  var relayCoreRadius = ballJointRadius * 0.46;
+  var coreNodeRadius = ballJointRadius * 1.35;
 
   self.currentPosition = randomIntegerVector3WithinBox(gridBounds);
   self.positions = [self.currentPosition];
   self.object3d = new THREE.Object3D();
   scene.add(self.object3d);
+  copperlineInnerGlowMaterial.opacity = options.glowOpacity;
   if (options.texturePath) {
     self.material = new THREE.MeshLambertMaterial({
       map: textures[options.texturePath],
@@ -50,6 +88,7 @@ var Pipe = function(scene, options) {
   }
   var makeCylinderBetweenPoints = function(fromPoint, toPoint, material) {
     var deltaVector = new THREE.Vector3().subVectors(toPoint, fromPoint);
+    var segmentLength = deltaVector.length();
     var arrow = new THREE.ArrowHelper(
       deltaVector.clone().normalize(),
       fromPoint
@@ -57,7 +96,7 @@ var Pipe = function(scene, options) {
     var geometry = new THREE.CylinderGeometry(
       pipeRadius,
       pipeRadius,
-      deltaVector.length(),
+      segmentLength,
       10,
       4,
       true
@@ -65,34 +104,57 @@ var Pipe = function(scene, options) {
     var mesh = new THREE.Mesh(geometry, material);
 
     mesh.rotation.setFromQuaternion(arrow.quaternion);
-    mesh.position.addVectors(fromPoint, deltaVector.multiplyScalar(0.5));
+    mesh.position.addVectors(fromPoint, deltaVector.clone().multiplyScalar(0.5));
     mesh.updateMatrix();
 
     self.object3d.add(mesh);
+
+    var glowGeometry = new THREE.CylinderGeometry(
+      pipeRadius * options.innerGlowRadiusScale,
+      pipeRadius * options.innerGlowRadiusScale,
+      segmentLength * 1.01,
+      8,
+      1,
+      true
+    );
+    var glow = new THREE.Mesh(glowGeometry, copperlineInnerGlowMaterial);
+    glow.rotation.copy(mesh.rotation);
+    glow.position.copy(mesh.position);
+    glow.updateMatrix();
+    self.object3d.add(glow);
   };
   var makeBallJoint = function(position) {
-    var ball = new THREE.Mesh(
+    var couplingMaterial = chance(options.oxidationChance)
+      ? copperlineOxidizedMaterial
+      : copperlineCouplingMaterial;
+    var coupling = new THREE.Mesh(
       new THREE.SphereGeometry(ballJointRadius, 8, 8),
-      self.material
+      couplingMaterial
     );
-    ball.position.copy(position);
-    self.object3d.add(ball);
-  };
-  var makeTeapotJoint = function(position) {
-    //var teapotTexture = textures[options.texturePath].clone();
-    //teapotTexture.repeat.set(1, 1);
+    coupling.position.copy(position);
+    self.object3d.add(coupling);
 
-    // THREE.TeapotBufferGeometry = function ( size, segments, bottom, lid, body, fitLid, blinn )
-    var teapot = new THREE.Mesh(
-      new THREE.TeapotBufferGeometry(teapotSize, true, true, true, true, true),
-      self.material
-      //new THREE.MeshLambertMaterial({ map: teapotTexture })
+    var relayCore = new THREE.Mesh(
+      new THREE.SphereGeometry(relayCoreRadius, 8, 8),
+      copperlineRelayCoreMaterial
     );
-    teapot.position.copy(position);
-    teapot.rotation.x = (Math.floor(random(0, 50)) * Math.PI) / 2;
-    teapot.rotation.y = (Math.floor(random(0, 50)) * Math.PI) / 2;
-    teapot.rotation.z = (Math.floor(random(0, 50)) * Math.PI) / 2;
-    self.object3d.add(teapot);
+    relayCore.position.copy(position);
+    self.object3d.add(relayCore);
+  };
+  var makeRelayNode = function(position) {
+    var housing = new THREE.Mesh(
+      new THREE.SphereGeometry(coreNodeRadius, 10, 10),
+      copperlineCouplingMaterial
+    );
+    housing.position.copy(position);
+    self.object3d.add(housing);
+
+    var core = new THREE.Mesh(
+      new THREE.SphereGeometry(coreNodeRadius * 0.58, 10, 10),
+      copperlineRelayCoreMaterial
+    );
+    core.position.copy(position);
+    self.object3d.add(core);
   };
   var makeElbowJoint = function(fromPosition, toPosition, tangentVector) {
     // elbow
@@ -107,7 +169,7 @@ var Pipe = function(scene, options) {
     // "elball" (not a proper elbow)
     var elball = new THREE.Mesh(
       new THREE.SphereGeometry(pipeRadius, 8, 8),
-      self.material
+      copperlineCouplingMaterial
     );
     elball.position.copy(fromPosition);
     self.object3d.add(elball);
@@ -196,8 +258,10 @@ var Pipe = function(scene, options) {
     // joint
     // (initial ball joint is handled elsewhere)
     if (lastDirectionVector && !lastDirectionVector.equals(directionVector)) {
-      if (chance(options.teapotChance)) {
-        makeTeapotJoint(self.currentPosition);
+      if (chance(options.coreNodeChance)) {
+        makeRelayNode(self.currentPosition);
+      } else if (chance(options.relayNodeChance)) {
+        makeRelayNode(self.currentPosition);
       } else if (chance(options.ballJointChance)) {
         makeBallJoint(self.currentPosition);
       } else {
@@ -241,6 +305,11 @@ var options = {
   multiple: true,
   texturePath: null,
   noveltyTextureChance: 0,
+  glowOpacity: COPPERLINE_SETTINGS.glowOpacity,
+  innerGlowRadiusScale: COPPERLINE_SETTINGS.innerGlowRadiusScale,
+  relayNodeChance: COPPERLINE_SETTINGS.relayNodeChance,
+  coreNodeChance: COPPERLINE_SETTINGS.coreNodeChance,
+  oxidationChance: COPPERLINE_SETTINGS.oxidationChance,
   joints: jointTypeSelect.value,
   interval: [16, 24], // range of seconds between fade-outs... not necessarily anything like how the original works
 };
@@ -385,13 +454,16 @@ function animate() {
       jointType = jointsCycleArray[jointsCycleIndex++];
     }
     var pipeOptions = {
-      teapotChance: 0,
       ballJointChance:
         jointType === JOINTS_BALL ? 1 : jointType === JOINTS_MIXED ? 1 / 3 : 0,
+      coreNodeChance: options.coreNodeChance,
+      relayNodeChance: options.relayNodeChance,
+      oxidationChance: options.oxidationChance,
+      glowOpacity: options.glowOpacity,
+      innerGlowRadiusScale: options.innerGlowRadiusScale,
       texturePath: options.texturePath,
     };
     if (chance(options.noveltyTextureChance)) {
-      pipeOptions.teapotChance = 1 / 20; // why not? :)
       pipeOptions.texturePath = "images/textures/candycane.png";
       // TODO: DRY
       if (!textures[pipeOptions.texturePath]) {

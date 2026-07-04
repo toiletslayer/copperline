@@ -141,3 +141,25 @@ var COPPERLINE_THEME = {
 
 Adjust those values to tune the copper pipe color, warm highlights, glow, and
 dark industrial background.
+
+Relay nodes, pipe glow, and coupling behavior are controlled by
+`COPPERLINE_SETTINGS` near the same area:
+
+```js
+var COPPERLINE_SETTINGS = {
+  glowOpacity: 0.28,
+  innerGlowRadiusScale: 0.38,
+  relayNodeChance: 1 / 18,
+  coreNodeChance: 1 / 80,
+  oxidationChance: 1 / 36,
+};
+```
+
+- Change `glowOpacity` to make the hot inner pipe glow stronger or softer.
+- Change `innerGlowRadiusScale` to make the glow core wider or thinner.
+- Change `relayNodeChance` and `coreNodeChance` to tune how often special
+  glowing junctions appear on turns.
+- Change `oxidationChance` to tune rare oxidized green coupling accents.
+- Adjust `copperlinePipeMaterial`, `copperlineCouplingMaterial`,
+  `copperlineRelayCoreMaterial`, and `copperlineInnerGlowMaterial` in
+  `screensaver.js` to tune pipe, coupling, relay, and flow appearance.
