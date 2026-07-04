@@ -13,11 +13,60 @@ var COPPERLINE_THEME = {
 };
 
 var COPPERLINE_SETTINGS = {
-  glowOpacity: 0.28,
-  innerGlowRadiusScale: 0.38,
   relayNodeChance: 1 / 18,
   coreNodeChance: 1 / 80,
   oxidationChance: 1 / 36,
+};
+
+var COPPERLINE_CONDUIT_SETTINGS = {
+  copperPipe: {
+    weight: 45,
+    pipeRadius: 0.2,
+    jointRadiusScale: 1.5,
+    innerGlow: true,
+    innerGlowRadiusScale: 0.38,
+    glowOpacity: 0.22,
+  },
+  darkSupport: {
+    weight: 15,
+    pipeRadius: 0.24,
+    jointRadiusScale: 1.35,
+    innerGlow: false,
+    innerGlowRadiusScale: 0,
+    glowOpacity: 0,
+  },
+  hotDataLine: {
+    weight: 18,
+    pipeRadius: 0.14,
+    jointRadiusScale: 1.65,
+    innerGlow: true,
+    innerGlowRadiusScale: 0.58,
+    glowOpacity: 0.58,
+  },
+  oxidizedCopper: {
+    weight: 7,
+    pipeRadius: 0.19,
+    jointRadiusScale: 1.45,
+    innerGlow: true,
+    innerGlowRadiusScale: 0.28,
+    glowOpacity: 0.14,
+  },
+  thinWire: {
+    weight: 12,
+    pipeRadius: 0.08,
+    jointRadiusScale: 1.8,
+    innerGlow: true,
+    innerGlowRadiusScale: 0.7,
+    glowOpacity: 0.66,
+  },
+  heavyBusLine: {
+    weight: 3,
+    pipeRadius: 0.32,
+    jointRadiusScale: 1.25,
+    innerGlow: true,
+    innerGlowRadiusScale: 0.3,
+    glowOpacity: 0.34,
+  },
 };
 
 var copperlinePipeMaterial = new THREE.MeshPhongMaterial({
@@ -34,16 +83,76 @@ var copperlineCouplingMaterial = new THREE.MeshPhongMaterial({
   shininess: 120,
 });
 
+var copperlineDarkSupportMaterial = new THREE.MeshPhongMaterial({
+  color: 0x15100d,
+  specular: 0x5a4030,
+  emissive: 0x030201,
+  shininess: 70,
+});
+
+var copperlineHotDataLineMaterial = new THREE.MeshPhongMaterial({
+  color: COPPERLINE_THEME.hotGlow,
+  specular: COPPERLINE_THEME.warmHighlight,
+  emissive: 0x8a2b05,
+  shininess: 130,
+});
+
+var copperlineDimWireMaterial = new THREE.MeshPhongMaterial({
+  color: 0x9f6a3a,
+  specular: COPPERLINE_THEME.warmHighlight,
+  emissive: 0x271006,
+  shininess: 85,
+});
+
+var copperlineHeavyBusMaterial = new THREE.MeshPhongMaterial({
+  color: 0x7f3f1c,
+  specular: COPPERLINE_THEME.warmHighlight,
+  emissive: COPPERLINE_THEME.darkCopper,
+  shininess: 140,
+});
+
 var copperlineRelayCoreMaterial = new THREE.MeshBasicMaterial({
   color: COPPERLINE_THEME.hotGlow,
   transparent: true,
   opacity: 0.72,
 });
 
-var copperlineInnerGlowMaterial = new THREE.MeshBasicMaterial({
+var copperlineSubtleGlowMaterial = new THREE.MeshBasicMaterial({
   color: COPPERLINE_THEME.hotGlow,
   transparent: true,
-  opacity: COPPERLINE_SETTINGS.glowOpacity,
+  opacity: COPPERLINE_CONDUIT_SETTINGS.copperPipe.glowOpacity,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+
+var copperlineHotGlowMaterial = new THREE.MeshBasicMaterial({
+  color: COPPERLINE_THEME.hotGlow,
+  transparent: true,
+  opacity: COPPERLINE_CONDUIT_SETTINGS.hotDataLine.glowOpacity,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+
+var copperlineDimGlowMaterial = new THREE.MeshBasicMaterial({
+  color: COPPERLINE_THEME.hotGlow,
+  transparent: true,
+  opacity: COPPERLINE_CONDUIT_SETTINGS.oxidizedCopper.glowOpacity,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+
+var copperlineWireGlowMaterial = new THREE.MeshBasicMaterial({
+  color: COPPERLINE_THEME.hotGlow,
+  transparent: true,
+  opacity: COPPERLINE_CONDUIT_SETTINGS.thinWire.glowOpacity,
+  depthWrite: false,
+  blending: THREE.AdditiveBlending,
+});
+
+var copperlineBusGlowMaterial = new THREE.MeshBasicMaterial({
+  color: COPPERLINE_THEME.hotGlow,
+  transparent: true,
+  opacity: COPPERLINE_CONDUIT_SETTINGS.heavyBusLine.glowOpacity,
   depthWrite: false,
   blending: THREE.AdditiveBlending,
 });
@@ -54,6 +163,51 @@ var copperlineOxidizedMaterial = new THREE.MeshPhongMaterial({
   emissive: 0x082419,
   shininess: 55,
 });
+
+var COPPERLINE_CONDUIT_TYPES = [
+  {
+    name: "copperPipe",
+    settings: COPPERLINE_CONDUIT_SETTINGS.copperPipe,
+    material: copperlinePipeMaterial,
+    couplingMaterial: copperlineCouplingMaterial,
+    innerGlowMaterial: copperlineSubtleGlowMaterial,
+  },
+  {
+    name: "darkSupport",
+    settings: COPPERLINE_CONDUIT_SETTINGS.darkSupport,
+    material: copperlineDarkSupportMaterial,
+    couplingMaterial: copperlineDarkSupportMaterial,
+    innerGlowMaterial: null,
+  },
+  {
+    name: "hotDataLine",
+    settings: COPPERLINE_CONDUIT_SETTINGS.hotDataLine,
+    material: copperlineHotDataLineMaterial,
+    couplingMaterial: copperlineCouplingMaterial,
+    innerGlowMaterial: copperlineHotGlowMaterial,
+  },
+  {
+    name: "oxidizedCopper",
+    settings: COPPERLINE_CONDUIT_SETTINGS.oxidizedCopper,
+    material: copperlineOxidizedMaterial,
+    couplingMaterial: copperlineOxidizedMaterial,
+    innerGlowMaterial: copperlineDimGlowMaterial,
+  },
+  {
+    name: "thinWire",
+    settings: COPPERLINE_CONDUIT_SETTINGS.thinWire,
+    material: copperlineDimWireMaterial,
+    couplingMaterial: copperlineCouplingMaterial,
+    innerGlowMaterial: copperlineWireGlowMaterial,
+  },
+  {
+    name: "heavyBusLine",
+    settings: COPPERLINE_CONDUIT_SETTINGS.heavyBusLine,
+    material: copperlineHeavyBusMaterial,
+    couplingMaterial: copperlineCouplingMaterial,
+    innerGlowMaterial: copperlineBusGlowMaterial,
+  },
+];
 
 var nodes = {};
 function setAt(position, value) {
@@ -69,8 +223,10 @@ function clearGrid() {
 var textures = {};
 var Pipe = function(scene, options) {
   var self = this;
-  var pipeRadius = 0.2;
-  var ballJointRadius = pipeRadius * 1.5;
+  var conduitType = options.conduitType || COPPERLINE_CONDUIT_TYPES[0];
+  var conduitSettings = conduitType.settings;
+  var pipeRadius = conduitSettings.pipeRadius;
+  var ballJointRadius = pipeRadius * conduitSettings.jointRadiusScale;
   var relayCoreRadius = ballJointRadius * 0.46;
   var coreNodeRadius = ballJointRadius * 1.35;
 
@@ -78,13 +234,12 @@ var Pipe = function(scene, options) {
   self.positions = [self.currentPosition];
   self.object3d = new THREE.Object3D();
   scene.add(self.object3d);
-  copperlineInnerGlowMaterial.opacity = options.glowOpacity;
   if (options.texturePath) {
     self.material = new THREE.MeshLambertMaterial({
       map: textures[options.texturePath],
     });
   } else {
-    self.material = copperlinePipeMaterial;
+    self.material = conduitType.material;
   }
   var makeCylinderBetweenPoints = function(fromPoint, toPoint, material) {
     var deltaVector = new THREE.Vector3().subVectors(toPoint, fromPoint);
@@ -109,24 +264,26 @@ var Pipe = function(scene, options) {
 
     self.object3d.add(mesh);
 
-    var glowGeometry = new THREE.CylinderGeometry(
-      pipeRadius * options.innerGlowRadiusScale,
-      pipeRadius * options.innerGlowRadiusScale,
-      segmentLength * 1.01,
-      8,
-      1,
-      true
-    );
-    var glow = new THREE.Mesh(glowGeometry, copperlineInnerGlowMaterial);
-    glow.rotation.copy(mesh.rotation);
-    glow.position.copy(mesh.position);
-    glow.updateMatrix();
-    self.object3d.add(glow);
+    if (conduitSettings.innerGlow && conduitType.innerGlowMaterial) {
+      var glowGeometry = new THREE.CylinderGeometry(
+        pipeRadius * conduitSettings.innerGlowRadiusScale,
+        pipeRadius * conduitSettings.innerGlowRadiusScale,
+        segmentLength * 1.01,
+        8,
+        1,
+        true
+      );
+      var glow = new THREE.Mesh(glowGeometry, conduitType.innerGlowMaterial);
+      glow.rotation.copy(mesh.rotation);
+      glow.position.copy(mesh.position);
+      glow.updateMatrix();
+      self.object3d.add(glow);
+    }
   };
   var makeBallJoint = function(position) {
     var couplingMaterial = chance(options.oxidationChance)
       ? copperlineOxidizedMaterial
-      : copperlineCouplingMaterial;
+      : conduitType.couplingMaterial;
     var coupling = new THREE.Mesh(
       new THREE.SphereGeometry(ballJointRadius, 8, 8),
       couplingMaterial
@@ -144,7 +301,7 @@ var Pipe = function(scene, options) {
   var makeRelayNode = function(position) {
     var housing = new THREE.Mesh(
       new THREE.SphereGeometry(coreNodeRadius, 10, 10),
-      copperlineCouplingMaterial
+      conduitType.couplingMaterial
     );
     housing.position.copy(position);
     self.object3d.add(housing);
@@ -169,7 +326,7 @@ var Pipe = function(scene, options) {
     // "elball" (not a proper elbow)
     var elball = new THREE.Mesh(
       new THREE.SphereGeometry(pipeRadius, 8, 8),
-      copperlineCouplingMaterial
+      conduitType.couplingMaterial
     );
     elball.position.copy(fromPosition);
     self.object3d.add(elball);
@@ -305,8 +462,7 @@ var options = {
   multiple: true,
   texturePath: null,
   noveltyTextureChance: 0,
-  glowOpacity: COPPERLINE_SETTINGS.glowOpacity,
-  innerGlowRadiusScale: COPPERLINE_SETTINGS.innerGlowRadiusScale,
+  conduitTypes: COPPERLINE_CONDUIT_TYPES,
   relayNodeChance: COPPERLINE_SETTINGS.relayNodeChance,
   coreNodeChance: COPPERLINE_SETTINGS.coreNodeChance,
   oxidationChance: COPPERLINE_SETTINGS.oxidationChance,
@@ -459,8 +615,6 @@ function animate() {
       coreNodeChance: options.coreNodeChance,
       relayNodeChance: options.relayNodeChance,
       oxidationChance: options.oxidationChance,
-      glowOpacity: options.glowOpacity,
-      innerGlowRadiusScale: options.innerGlowRadiusScale,
       texturePath: options.texturePath,
     };
     if (chance(options.noveltyTextureChance)) {
@@ -475,6 +629,7 @@ function animate() {
     }
     // TODO: create new pipes over time?
     for (var i = 0; i < 1 + options.multiple * (1 + chance(1 / 10)); i++) {
+      pipeOptions.conduitType = chooseWeighted(options.conduitTypes);
       pipes.push(new Pipe(scene, pipeOptions));
     }
   }
@@ -665,6 +820,20 @@ function chance(value) {
 }
 function chooseFrom(values) {
   return values[Math.floor(Math.random() * values.length)];
+}
+function chooseWeighted(values) {
+  var totalWeight = values.reduce(function(total, value) {
+    return total + value.settings.weight;
+  }, 0);
+  var threshold = random(0, totalWeight);
+  var runningWeight = 0;
+  for (var i = 0; i < values.length; i++) {
+    runningWeight += values[i].settings.weight;
+    if (threshold <= runningWeight) {
+      return values[i];
+    }
+  }
+  return values[values.length - 1];
 }
 function shuffleArrayInPlace(array) {
   for (var i = array.length - 1; i > 0; i--) {

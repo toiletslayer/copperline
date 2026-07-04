@@ -147,19 +147,43 @@ Relay nodes, pipe glow, and coupling behavior are controlled by
 
 ```js
 var COPPERLINE_SETTINGS = {
-  glowOpacity: 0.28,
-  innerGlowRadiusScale: 0.38,
   relayNodeChance: 1 / 18,
   coreNodeChance: 1 / 80,
   oxidationChance: 1 / 36,
 };
 ```
 
-- Change `glowOpacity` to make the hot inner pipe glow stronger or softer.
-- Change `innerGlowRadiusScale` to make the glow core wider or thinner.
 - Change `relayNodeChance` and `coreNodeChance` to tune how often special
   glowing junctions appear on turns.
 - Change `oxidationChance` to tune rare oxidized green coupling accents.
-- Adjust `copperlinePipeMaterial`, `copperlineCouplingMaterial`,
-  `copperlineRelayCoreMaterial`, and `copperlineInnerGlowMaterial` in
-  `screensaver.js` to tune pipe, coupling, relay, and flow appearance.
+- Adjust `copperlinePipeMaterial`, `copperlineCouplingMaterial`, and
+  `copperlineRelayCoreMaterial` in `screensaver.js` to tune pipe, coupling,
+  and relay appearance.
+
+## Conduit type tuning
+
+Each new pipe is assigned one weighted conduit type from
+`COPPERLINE_CONDUIT_SETTINGS` in `screensaver.js`:
+
+```js
+var COPPERLINE_CONDUIT_SETTINGS = {
+  copperPipe: { weight: 45, pipeRadius: 0.2 },
+  darkSupport: { weight: 15, pipeRadius: 0.24 },
+  hotDataLine: { weight: 18, pipeRadius: 0.14 },
+  oxidizedCopper: { weight: 7, pipeRadius: 0.19 },
+  thinWire: { weight: 12, pipeRadius: 0.08 },
+  heavyBusLine: { weight: 3, pipeRadius: 0.32 },
+};
+```
+
+Each type can also tune `jointRadiusScale`, `innerGlow`,
+`innerGlowRadiusScale`, and `glowOpacity`.
+
+- Change `weight` to tune how often a type appears.
+- Change `pipeRadius` to make a type thicker or thinner.
+- Change `innerGlow` to enable or disable that type's data-flow core.
+- Change `innerGlowRadiusScale` and `glowOpacity` to tune glow width and
+  strength per type.
+- Adjust the shared conduit materials near the top of `screensaver.js` to tune
+  copper pipe, dark support, hot data line, dim wire, oxidized, and heavy bus
+  appearances.
