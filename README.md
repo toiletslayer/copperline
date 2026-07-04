@@ -78,6 +78,12 @@ Then open:
 http://127.0.0.1:8000/
 ```
 
+For a clean livestream/OBS view with the controls hidden, open:
+
+```text
+http://127.0.0.1:8000/#{"hideUI":true}
+```
+
 If port 8000 is already in use, choose another port:
 
 ```bash
@@ -93,6 +99,37 @@ http://127.0.0.1:8080/
 No build step is required. The current app is static HTML, CSS, JavaScript,
 Three.js libraries, and image assets, so it remains compatible with GitHub
 Pages.
+
+## Livestream / OBS controls
+
+Copperline reads simple JSON options from the URL hash.
+
+Hide the UI:
+
+```text
+http://127.0.0.1:8000/#{"hideUI":true}
+```
+
+Choose a visual preset:
+
+```text
+http://127.0.0.1:8000/#{"preset":"dataCore"}
+```
+
+Hide the UI and choose a preset:
+
+```text
+http://127.0.0.1:8000/#{"hideUI":true,"preset":"heavyIndustrial"}
+```
+
+Recommended OBS Browser Source URL:
+
+```text
+http://127.0.0.1:8000/#%7B%22hideUI%22%3Atrue%2C%22preset%22%3A%22copperline%22%7D
+```
+
+Use a 1920x1080 source size first. The app is static, so OBS can point at the
+same local server URL or a GitHub Pages URL once Pages is enabled.
 
 ## GitHub Pages goal
 
@@ -187,3 +224,20 @@ Each type can also tune `jointRadiusScale`, `innerGlow`,
 - Adjust the shared conduit materials near the top of `screensaver.js` to tune
   copper pipe, dark support, hot data line, dim wire, oxidized, and heavy bus
   appearances.
+
+## Presets
+
+Presets adjust conduit type weights without changing the routing/collision
+behavior.
+
+Available presets:
+
+- `copperline` - default mixed copper conduit behavior.
+- `dataCore` - more hot data lines and thin glowing wires.
+- `wasteland` - more oxidized copper and darker support conduits.
+- `heavyIndustrial` - more dark support and heavy bus lines.
+- `thinWire` - mostly thin wire and hot data lines.
+
+Preset weights are defined in `COPPERLINE_PRESETS` in `screensaver.js`. Tweak
+those numbers to change the visual mix while leaving pipe movement behavior
+alone.

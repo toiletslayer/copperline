@@ -209,6 +209,64 @@ var COPPERLINE_CONDUIT_TYPES = [
   },
 ];
 
+var COPPERLINE_PRESETS = {
+  copperline: {
+    copperPipe: 45,
+    hotDataLine: 18,
+    darkSupport: 15,
+    thinWire: 12,
+    oxidizedCopper: 7,
+    heavyBusLine: 3,
+  },
+  dataCore: {
+    copperPipe: 24,
+    hotDataLine: 40,
+    darkSupport: 6,
+    thinWire: 24,
+    oxidizedCopper: 2,
+    heavyBusLine: 4,
+  },
+  wasteland: {
+    copperPipe: 30,
+    hotDataLine: 8,
+    darkSupport: 18,
+    thinWire: 7,
+    oxidizedCopper: 32,
+    heavyBusLine: 5,
+  },
+  heavyIndustrial: {
+    copperPipe: 34,
+    hotDataLine: 8,
+    darkSupport: 28,
+    thinWire: 4,
+    oxidizedCopper: 6,
+    heavyBusLine: 20,
+  },
+  thinWire: {
+    copperPipe: 18,
+    hotDataLine: 26,
+    darkSupport: 6,
+    thinWire: 46,
+    oxidizedCopper: 2,
+    heavyBusLine: 2,
+  },
+};
+
+function makeConduitTypesForPreset(presetName) {
+  var preset = COPPERLINE_PRESETS[presetName] || COPPERLINE_PRESETS.copperline;
+  return COPPERLINE_CONDUIT_TYPES.map(function(conduitType) {
+    return {
+      name: conduitType.name,
+      settings: Object.assign({}, conduitType.settings, {
+        weight: preset[conduitType.name],
+      }),
+      material: conduitType.material,
+      couplingMaterial: conduitType.couplingMaterial,
+      innerGlowMaterial: conduitType.innerGlowMaterial,
+    };
+  });
+}
+
 var nodes = {};
 function setAt(position, value) {
   nodes["(" + position.x + ", " + position.y + ", " + position.z + ")"] = value;
@@ -462,7 +520,8 @@ var options = {
   multiple: true,
   texturePath: null,
   noveltyTextureChance: 0,
-  conduitTypes: COPPERLINE_CONDUIT_TYPES,
+  preset: "copperline",
+  conduitTypes: makeConduitTypesForPreset("copperline"),
   relayNodeChance: COPPERLINE_SETTINGS.relayNodeChance,
   coreNodeChance: COPPERLINE_SETTINGS.coreNodeChance,
   oxidationChance: COPPERLINE_SETTINGS.oxidationChance,
@@ -798,6 +857,18 @@ function updateFromParametersInURL() {
   // update based on the parameters
   // TODO: support more options
   showElementsIf(".ui-container", !params.hideUI);
+  var presetName = params.preset || "copperline";
+  if (!COPPERLINE_PRESETS[presetName]) {
+    console.warn("Unknown Copperline preset:", presetName);
+    presetName = "copperline";
+  }
+  if (options.preset !== presetName) {
+    options.preset = presetName;
+    options.conduitTypes = makeConduitTypesForPreset(presetName);
+    if (pipes.length > 0) {
+      reset();
+    }
+  }
 }
 
 updateFromParametersInURL();
